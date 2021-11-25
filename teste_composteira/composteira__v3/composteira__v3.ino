@@ -1,4 +1,3 @@
-#include <TimerOne.h>    //Biblioeca para o temporizador
 #include "DHT.h" //biblioteca do sensor de humidade e temperatura
 #include <SoftwareSerial.h> //Emulador de porta TX e RX para portas digitais
 #include <EEPROM.h>       //memoria
@@ -23,23 +22,23 @@ DHT dht2(DHTPIN2, DHTTYPE);
 DHT dht3(DHTPIN3, DHTTYPE);
 
 
-String comando;
+int comando;
 
-String dia="00-00:00";
+int dia=1;
 
 struct DadosSensor{
   int Numsensor;
   float humid;
   float temperatura;
-  String hora[8];     //01-00:00
   };
- 
  //funcoes e variais para timmer
  void contahora();
  int segundos=0;
  int minutos=0;
  int horas=0;
 
+// Variavel inteira (2 bytes - 16bits) para definir a posição inicial
+      int posicao = 2;
  
 void setup() { 
     // portabluetooth.begin(9600);
@@ -49,49 +48,16 @@ void setup() {
     dht1.begin();
     dht2.begin();
     dht3.begin();
-    Serial.println(EEPROM.length());//tamanho da eeprom
-    Serial.println("OK");
+    Serial.println("ok-1");
 
-    //Inicio Timer
-    Timer1.initialize(1000000); // 100 segundos  | 1 segundo(1000000)
-    Timer1.attachInterrupt(contahora);
+
+     // Grava no endereço 0 e 1, pois a variavel int ocupa 2 bytes
+     EEPROM.put(0, posicao);
     }
  
 void loop() {
-  float temp_hum_val[2] = {0};
-    // Reading temperature or humidity takes about 250 milliseconds!
-    // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-    
-    if(Serial.available()>0){
-      comando = Serial.parseInt();
-      if (comando ==999){
-       Serial.print ("alo");
-       escreveString(3,"123456789");
-       Serial.println(" String Armazenada: "+leString(3));
-     if(!dht.readTempAndHumidity(temp_hum_val)){
-        
-        DadosSensor sensor1 = {
-          1,
-          temp_hum_val[0],
-          temp_hum_val[1],
-          dia
-          };
-        
-        Serial.print(sensor1.humid); 
-    }
-    else{
-       Serial.println("Falha ao ler sensor 01");
-    }
-        
-        } 
-      }
-   
- 
-   delay(5000);
-
-}
-
-void contahora(){
+ if (dia<03){
+  //cronometro
   segundos++;
   if(segundos==60){
     minutos++;
@@ -101,35 +67,75 @@ void contahora(){
       horas++;
       minutos=0;
       }
-   Serial.print(horas+":"+minutos);
-   Serial.print(":" +segundos);
+      if(minutos==1){
+        sensores();
+        }
+        if (horas==25){
+          horas=0;
+          dia++;
+          }
+      //comandos serial
+      if(Serial.available()>0){
+      comando = Serial.parseInt();
+      if (comando ==1){
+        sensores();
+        }
+        if ( comando==2){
+          tempo();
+          }
+      }
+delay(1000);  
+ }
+ 
+ if (dia>03){
+  Serial.print("Memoria lotada");
+  delay(2000);
   }
+}
 
-void escreveString(int enderecoBase, String mensagem){ // Salva a string nos endereços de forma sequencial
-  if (mensagem.length()>EEPROM.length() || (enderecoBase+mensagem.length()) >EEPROM.length() ){ // verificamos se a string cabe na memória a partir do endereço desejado
-    Serial.println ("A sua String não cabe na EEPROM"); // Caso não caiba mensagem de erro é mostrada
-  }
-  else{ // Caso seja possível armazenar 
-    for (int i = 0; i<mensagem.length(); i++){ 
-       EEPROM.write(enderecoBase,mensagem[i]); // Escrevemos cada byte da string de forma sequencial na memória
-       enderecoBase++; // Deslocamos endereço base em uma posição a cada byte salvo
+void tempo(){
+  if(horas<10){
+    Serial.print("0");
+    Serial.print(horas);
+    }else{
+      Serial.print(horas);
+      }
+   Serial.print(":");
+   if (minutos<10){
+    Serial.print("0");
+    Serial.print(minutos);
+    }else{
+      Serial.print(minutos);
+      }
+   Serial.print(":");
+    if (segundos<10){
+    Serial.print("0");
+    Serial.println(segundos);
+    }else{
+      Serial.println(segundos);
+      }
+   }
+  
+void sensores(){
+  float temp_hum_val[2] = {0};
+    // Reading temperature or humidity takes about 250 milliseconds!
+    // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+     Serial.println ("chamada tempo");
+     if(!dht.readTempAndHumidity(temp_hum_val)){   
+        DadosSensor sensor1 = {
+          1,
+          temp_hum_val[0],
+          temp_hum_val[1]
+          };
+        sensor1.humid = map(sensor1.humid, 0, 1023, 0, 255);
+        //Serial.print(sensor1.humid); 
+          EEPROM.update(posicao, sensor1.humid); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
     }
-    EEPROM.write(enderecoBase,'\0'); // Salvamos marcador de fim da string 
-  }
-}
-String leString(int enderecoBase){
-  String mensagem="";
-  if (enderecoBase>EEPROM.length()){ // Se o endereço base for maior que o espaço de endereçamento da EEPROM retornamos uma string vazia
-    return mensagem;
-  }
-  else { // Caso contrário, lemos byte a byte de cada endereço e montamos uma nova String
-    char pos;
-    do{
-      pos = EEPROM.read(enderecoBase); // Leitura do byte com base na posição atual
-      enderecoBase++; // A cada leitura incrementamos a posição a ser lida
-      mensagem = mensagem + pos; // Montamos string de saídaa
+    else{
+       Serial.println("Falha ao ler sensor 01");
     }
-    while (pos != '\0'); // Fazemos isso até encontrar o marcador de fim de string
-  }
-  return mensagem; // Retorno da mensagem
-}
+        
+        } 
