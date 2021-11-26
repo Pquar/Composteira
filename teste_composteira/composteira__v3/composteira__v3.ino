@@ -53,6 +53,13 @@ void setup() {
 
      // Grava no endereço 0 e 1, pois a variavel int ocupa 2 bytes
      EEPROM.put(0, posicao);
+   // Serial.print("Read float from EEPROM: ");
+
+     //float f = 0.00f;   //Variable to store data read from EEPROM.
+
+    //  int eeAddress = 3; //EEPROM address to start reading from
+     // EEPROM.get(eeAddress, f);
+    // Serial.println(f, 3); 
     }
  
 void loop() {
@@ -91,6 +98,15 @@ delay(1000);
   Serial.print("Memoria lotada");
   delay(2000);
   }
+ /*  for(int i=0;i<EEPROM.length();i++){
+      Serial.print(i);
+      Serial.print("=");
+      Serial.println(EEPROM.read(i));
+      delay(500);
+      }
+      */
+
+
 }
 
 void tempo(){
@@ -137,5 +153,49 @@ void sensores(){
     else{
        Serial.println("Falha ao ler sensor 01");
     }
+    //sensor 2
+    if(!dht1.readTempAndHumidity(temp_hum_val)){   
+        DadosSensor sensor2 = {
+          1,
+          temp_hum_val[0],
+          temp_hum_val[1]
+          };
+        sensor2.humid = map(sensor2.humid, 0, 1023, 0, 255);
+          Serial.print(sensor2.humid); 
+          EEPROM.update(posicao, sensor2.humid); 
+    }
+    else{
+       Serial.println("Falha ao ler sensor 02");
+    }
+    //sensor 3
+    if(!dht2.readTempAndHumidity(temp_hum_val)){   
+        DadosSensor sensor3 = {
+          1,
+          temp_hum_val[0],
+          temp_hum_val[1]
+          };
+        sensor3.humid = map(sensor3.humid, 0, 1023, 0, 255);
+         Serial.print(sensor3.humid); 
+          EEPROM.update(posicao, sensor3.humid);
+    }
+    else{
+       Serial.println("Falha ao ler sensor 03");
+    }
+    //sensor 4
+    if(!dht3.readTempAndHumidity(temp_hum_val)){   
+        DadosSensor sensor4 = {
+          1,
+          temp_hum_val[0],
+          temp_hum_val[1]
+          };
+        sensor4.humid = map(sensor4.humid, 0, 1023, 0, 255);
+         Serial.print(sensor4.humid); 
+          EEPROM.update(posicao, sensor4.humid);
+    }
+    else{
+       Serial.println("Falha ao ler sensor 04");
+    }
         
-        } 
+        }
+
+         
