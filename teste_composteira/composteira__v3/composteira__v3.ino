@@ -81,6 +81,11 @@ void loop() {
           horas=0;
           dia++;
           }
+      //chama sensores
+      if(minutos==1){
+      sensores();
+      }
+      
       //comandos serial
       if(Serial.available()>0){
       comando = Serial.parseInt();
@@ -126,9 +131,9 @@ void tempo(){
    Serial.print(":");
     if (segundos<10){
     Serial.print("0");
-    Serial.println(segundos);
+    Serial.print(segundos);
     }else{
-      Serial.println(segundos);
+      Serial.print(segundos);
       }
    }
   
@@ -136,7 +141,8 @@ void sensores(){
   float temp_hum_val[2] = {0};
     // Reading temperature or humidity takes about 250 milliseconds!
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-     Serial.println ("chamada tempo");
+     Serial.println ("chamada sensores");
+     
      if(!dht.readTempAndHumidity(temp_hum_val)){   
         DadosSensor sensor1 = {
           1,
@@ -144,8 +150,24 @@ void sensores(){
           temp_hum_val[1]
           };
         sensor1.humid = map(sensor1.humid, 0, 1023, 0, 255);
-        //Serial.print(sensor1.humid); 
+     //humidade
+          posicaoa();
+          tempo();
+          Serial.print(" |Dia: ");
+          Serial.print(dia);
+          Serial.print(" ||Sensor: ");
+          Serial.print(sensor1.Numsensor);
+          sensor1.humid = map(sensor1.humid, 0, 1023, 0, 255);
+          Serial.print(" |H% ");
           EEPROM.update(posicao, sensor1.humid); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
+          //temperatura
+          posicaoa();
+          sensor1.humid = map(sensor1.temperatura, 0, 1023, 0, 255);
+          Serial.print(" |Cº ");
+          EEPROM.update(posicao, sensor1.temperatura); 
           Serial.print(EEPROM.read(posicao));
           Serial.print(".");
           Serial.print(EEPROM.read(posicao+1));
@@ -156,13 +178,26 @@ void sensores(){
     //sensor 2
     if(!dht1.readTempAndHumidity(temp_hum_val)){   
         DadosSensor sensor2 = {
-          1,
+          2,
           temp_hum_val[0],
           temp_hum_val[1]
           };
-        sensor2.humid = map(sensor2.humid, 0, 1023, 0, 255);
-          Serial.print(sensor2.humid); 
+          Serial.print(" ||Sensor: ");
+          Serial.print(sensor2.Numsensor);
+          sensor2.humid = map(sensor2.humid, 0, 1023, 0, 255);
+          Serial.print(" |H% ");
           EEPROM.update(posicao, sensor2.humid); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
+          //temperatura
+          posicaoa();
+          sensor2.humid = map(sensor2.temperatura, 0, 1023, 0, 255);
+          Serial.print(" |Cº ");
+          EEPROM.update(posicao, sensor2.temperatura); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
     }
     else{
        Serial.println("Falha ao ler sensor 02");
@@ -170,13 +205,26 @@ void sensores(){
     //sensor 3
     if(!dht2.readTempAndHumidity(temp_hum_val)){   
         DadosSensor sensor3 = {
-          1,
+          3,
           temp_hum_val[0],
           temp_hum_val[1]
           };
-        sensor3.humid = map(sensor3.humid, 0, 1023, 0, 255);
-         Serial.print(sensor3.humid); 
-          EEPROM.update(posicao, sensor3.humid);
+          Serial.print(" ||Sensor: ");
+          Serial.print(sensor3.Numsensor);
+          sensor3.humid = map(sensor3.humid, 0, 1023, 0, 255);
+          Serial.print(" |H% ");
+          EEPROM.update(posicao, sensor3.humid); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
+          //temperatura
+          posicaoa();
+          sensor3.humid = map(sensor3.temperatura, 0, 1023, 0, 255);
+          Serial.print(" |Cº ");
+          EEPROM.update(posicao, sensor3.temperatura); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
     }
     else{
        Serial.println("Falha ao ler sensor 03");
@@ -184,18 +232,50 @@ void sensores(){
     //sensor 4
     if(!dht3.readTempAndHumidity(temp_hum_val)){   
         DadosSensor sensor4 = {
-          1,
+          4,
           temp_hum_val[0],
           temp_hum_val[1]
           };
-        sensor4.humid = map(sensor4.humid, 0, 1023, 0, 255);
-         Serial.print(sensor4.humid); 
-          EEPROM.update(posicao, sensor4.humid);
+          Serial.print(" ||Sensor: ");
+          Serial.print(sensor4.Numsensor);
+          sensor4.humid = map(sensor4.humid, 0, 1023, 0, 255);
+          Serial.print(" |H% ");
+          EEPROM.update(posicao, sensor4.humid); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
+          //temperatura
+          posicaoa();
+          sensor4.humid = map(sensor4.temperatura, 0, 1023, 0, 255);
+          Serial.print(" |Cº ");
+          EEPROM.update(posicao, sensor4.temperatura); 
+          Serial.print(EEPROM.read(posicao));
+          Serial.print(".");
+          Serial.print(EEPROM.read(posicao+1));
+          
     }
     else{
        Serial.println("Falha ao ler sensor 04");
-    }
         
+    }
+         // noInterrupts();
+         // interrupts();
+      for (int x = 0; x==0;) {
+        break;
+      }
+      
         }
+
+void posicaoa(){
+          posicao++;
+          posicao++;
+          if (posicao<255){
+             posicao++;
+            }else{
+              posicao=1;
+              }
+
+              return posicao;
+          }
 
          
