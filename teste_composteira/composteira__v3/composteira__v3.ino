@@ -76,10 +76,10 @@ void loop() {
       minutos=0;
       }
       //retira dos dados
-      if(horas==tirardados){
+      if(minutos==tirardados){
           sensores();
           tirardados=tirardados+6;
-          if(tirardados>=24){
+          if(tirardados>=60){
             tirardados=0;
             }
         }
