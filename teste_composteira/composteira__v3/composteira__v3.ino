@@ -36,6 +36,7 @@ struct DadosSensor{
  int segundos=0;
  int minutos=0;
  int horas=0;
+ int tirardados;
 
 // Variavel inteira (2 bytes - 16bits) para definir a posição inicial
       int posicao = 2;
@@ -74,17 +75,18 @@ void loop() {
       horas++;
       minutos=0;
       }
-      if(minutos==1){
-        sensores();
+      //retira dos dados
+      if(horas==tirardados){
+          sensores();
+          tirardados=tirardados+6;
+          if(tirardados>=24){
+            tirardados=0;
+            }
         }
-        if (horas==25){
+        if (horas==24){
           horas=0;
           dia++;
           }
-      //chama sensores
-      if(minutos==1){
-      sensores();
-      }
       
       //comandos serial
       if(Serial.available()>0){
@@ -95,6 +97,9 @@ void loop() {
         if ( comando==2){
           tempo();
           }
+          if (comando==3){
+            leitura();
+            }
       }
 delay(1000);  
  }
@@ -113,6 +118,12 @@ delay(1000);
 
 
 }
+
+void leitura (){
+  for(int i=0;i<255;i++){
+  Serial.println(EEPROM.read(i));
+  }
+  }
 
 void tempo(){
   if(horas<10){
